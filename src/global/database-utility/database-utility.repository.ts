@@ -93,4 +93,20 @@ export class DatabaseUtilityRepository {
 
     return insertResult as T;
   }
+
+  async findById<T>(
+    tableName: string,
+    id: string | number,
+  ): Promise<T | undefined> {
+    const connection = await this.tenantService.getConnection();
+
+    const result = (await connection
+      .createQueryBuilder()
+      .select('*')
+      .from(tableName, tableName)
+      .where(`${tableName}.ID = :id`, { id })
+      .getRawOne()) as T;
+
+    return result;
+  }
 }
