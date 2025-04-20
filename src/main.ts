@@ -11,7 +11,7 @@ async function bootstrap() {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   });
-  
+
   app.setGlobalPrefix('/api/v1', {
     exclude: ['health'],
   });

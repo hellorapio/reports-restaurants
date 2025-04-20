@@ -15,6 +15,7 @@ export type User = {
   Phone: string;
   NameA: string;
   Password?: string;
+  tenant: string;
   role: string;
   createdAt: Date;
   updatedAt: Date;
