@@ -1,4 +1,3 @@
-import { TenantService } from 'src/global/tenant/tenant.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -12,19 +11,17 @@ type JwtPayload = {
   type: 'refresh' | 'access';
 };
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export default class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
-    private readonly tenantService: TenantService,
   ) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     super({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      jwtFromRequest: ExtractJwt.fromExtractors([
+      jwtFromRequest:
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ]),
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('jwt.sec')!,
       algorithms: ['HS256'],
@@ -32,14 +29,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    this.tenantService.setTenantId(payload.tenant);
     if (payload.type !== 'access')
       throw new UnauthorizedException('Invalid token type');
+    const user = await this.usersService.findById<User>(
+      payload.tenant,
+      'users',
+      payload.ID,
+    );
 
-    const user = await this.usersService.findById<User>('users', payload.ID);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
+    user.tenant = payload.tenant;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { Password, ...result } = user;
 

@@ -20,3 +20,16 @@ export function encryptString(text: string): string {
 
   return encrypted;
 }
+
+export function res(
+  data: Record<string, any> | Record<string, any>[],
+  message?: string,
+  code?: number,
+) {
+  return {
+    status: 'success',
+    code: code || 200,
+    message: message || '',
+    data,
+  };
+}

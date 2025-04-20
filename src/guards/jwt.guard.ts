@@ -1,8 +1,4 @@
-import {
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
@@ -22,13 +18,5 @@ export default class JwtGuard extends AuthGuard('jwt') {
 
     if (isPublic) return true;
     return super.canActivate(context);
-  }
-
-  handleRequest(err: any, user: any) {
-    if (err || !user) {
-      throw new UnauthorizedException('JWT Guard: Invalid or missing token');
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return user;
   }
 }

@@ -1,4 +1,3 @@
-import { TenantService } from 'src/global/tenant/tenant.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { encryptString } from 'src/utils/utils';
@@ -11,11 +10,14 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private tenantService: TenantService,
   ) {}
 
-  async validateUser(phone: string, password: string): Promise<User | null> {
-    const user = await this.usersService.findByPhone(phone);
+  async validateUser(
+    tenant: string,
+    phone: string,
+    password: string,
+  ): Promise<User | null> {
+    const user = await this.usersService.findByPhone(tenant, phone);
 
     if (!user) {
       return null;
@@ -33,8 +35,7 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    this.tenantService.setTenantId(dto.tenant);
-    const user = await this.validateUser(dto.phone, dto.password);
+    const user = await this.validateUser(dto.tenant, dto.phone, dto.password);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
