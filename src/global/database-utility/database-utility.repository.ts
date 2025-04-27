@@ -27,6 +27,7 @@ interface DateRangeFilter {
   dateField: string;
   startDate: string | Date;
   endDate: string | Date;
+  hasFilter?: boolean;
   useConvert?: boolean;
   dateFormat?: string;
 }
@@ -131,7 +132,6 @@ export class DatabaseUtilityRepository {
         queryBuilder = queryBuilder.skip(options.pagination.offset);
       }
     }
-
     const result = await queryBuilder.getRawMany();
     return result as T[];
   }
@@ -243,7 +243,6 @@ export class DatabaseUtilityRepository {
         }
       }
     });
-
     return queryBuilder;
   }
 
@@ -274,7 +273,7 @@ export class DatabaseUtilityRepository {
         .setParameter(endParamName, dateRange.endDate);
 
       queryBuilder =
-        index === 0
+        index === 0 && !dateRange.hasFilter
           ? queryBuilder.where(condition)
           : queryBuilder.andWhere(condition);
     });
